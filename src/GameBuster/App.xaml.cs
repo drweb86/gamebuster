@@ -14,6 +14,8 @@ namespace GameBuster
     /// </summary>
     public partial class App : Application
     {
+        private readonly GameBusterController _controller = GameBusterController.Controller;
+
         protected override void OnExit(ExitEventArgs e)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, exc)

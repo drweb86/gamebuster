@@ -14,6 +14,8 @@ namespace GameBuster.Controller
 {
     class GameBusterController : BaseController<GameBusterModel>
     {
+        private readonly GameWatcherService _gameWatcherService;
+
         protected override ILog CreateOpenLog()
         {
             var fileLog = new SimpleFileLog(FileHelper.LogsFolder);
@@ -26,6 +28,8 @@ namespace GameBuster.Controller
         private GameBusterController()
         {
             LoadSettings();
+            _gameWatcherService = new GameWatcherService(Log);
+            StartService();
         }
         private static GameBusterController _instance;
         public static GameBusterController Controller
@@ -43,8 +47,19 @@ namespace GameBuster.Controller
 
         public override void Dispose()
         {
+            StopService();
             SaveSettings();
             base.Dispose();
+        }
+
+        private void StartService()
+        {
+            _gameWatcherService.Start();
+        }
+
+        private void StopService()
+        {
+            _gameWatcherService.Dispose();
         }
 
         private void LoadSettings()

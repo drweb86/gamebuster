@@ -61,7 +61,7 @@
     <Compile Include="AspectOrientedFramework\WinForms\ToolBase.cs" />
     <Compile Include="AspectOrientedFramework\WinForms\ShellBaseController.cs" />
     <Compile Include="Collections\ReadOnlyDictionary.cs" />
-    <Compile Include="ExecuteProcessHelper.cs" />
+    <Compile Include="ProcessHelper.cs" />
     <Compile Include="FileIO\RelativePathDiscovery.cs" />
     <Compile Include="FileIO\SyncedFiles.cs" />
     <Compile Include="FileIO\SyncFile.cs" />

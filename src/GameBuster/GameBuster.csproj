@@ -66,7 +66,8 @@
     </Compile>
     <Compile Include="Controller\FileHelper.cs" />
     <Compile Include="Controller\GameBusterController.cs" />
-    <Compile Include="Services\GameBusterSettings.cs" />
+    <Compile Include="Model\GameBusterSettings.cs" />
+    <Compile Include="Services\GameWatcherService.cs" />
     <Compile Include="View\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

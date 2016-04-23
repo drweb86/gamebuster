@@ -3,7 +3,7 @@ using System.Text;
 
 namespace HDE.Platform
 {
-    static class ExecuteProcessHelper
+    static class ProcessHelper
     {
         public static void Execute(
             string executable,
