@@ -48,13 +48,15 @@ namespace GameBuster.Controller
         public override void Dispose()
         {
             StopService();
-            SaveSettings();
             base.Dispose();
         }
 
+        /// <summary>
+        /// Starts or restarts service.
+        /// </summary>
         private void StartService()
         {
-            _gameWatcherService.Start();
+            _gameWatcherService.Start(Model.Settings);
         }
 
         private void StopService()
@@ -68,10 +70,12 @@ namespace GameBuster.Controller
                 .Load();
         }
 
-        private void SaveSettings()
+        public void AcceptSettings(GameBusterSettings gameBusterSettings)
         {
+            Model.Settings = gameBusterSettings;
             new SettingsService<GameBusterSettings>(Log)
                 .Save(Model.Settings);
+            StartService();
         }
     }
 }

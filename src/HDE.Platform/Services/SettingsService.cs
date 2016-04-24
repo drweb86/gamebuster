@@ -39,17 +39,27 @@ namespace HDE.Platform.Services
         /// <param name="log">Opened log.</param>
         public SettingsService(ILog log)
         {
+#if DEBUG
+            Initialize(log,
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location),
+                    "Debug"),
+                DefaultFileName);
+#else
+
             Initialize(log, 
                 Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     Path.GetFileNameWithoutExtension(Assembly.GetEntryAssembly().Location)
                     ), 
                 DefaultFileName);
+#endif
         }
 
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
 
         private void Initialize(ILog log, string settingsFolder, string settingsFileName)
         {
@@ -74,9 +84,9 @@ namespace HDE.Platform.Services
             }
         }
 
-        #endregion
+#endregion
 
-        #region Public Methods
+#region Public Methods
 
         /// <summary>
         /// Loads settings. Doesn't throw exceptions.
@@ -116,6 +126,6 @@ namespace HDE.Platform.Services
             SerializerHelper.Save(settings, _settingsFile);
         }
 
-        #endregion
+#endregion
     }
 }

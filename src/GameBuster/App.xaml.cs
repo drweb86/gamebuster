@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using GameBuster.Controller;
+using Hardcodet.Wpf.TaskbarNotification;
 
 namespace GameBuster
 {
@@ -14,12 +15,23 @@ namespace GameBuster
     /// </summary>
     public partial class App : Application
     {
+        private TaskbarIcon _notifyIcon;
         private readonly GameBusterController _controller = GameBusterController.Controller;
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            //create the notifyicon (it's a resource declared in NotifyIconResources.xaml
+            _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, exc)
+                => FatalExceptionObject(exc.ExceptionObject);
+        }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            AppDomain.CurrentDomain.UnhandledException += (sender, exc)
-                => FatalExceptionObject(exc.ExceptionObject);
+            _notifyIcon.Dispose(); //the icon would clean up automatically, but this is cleaner
 
             GameBusterController.Controller.Dispose();
 

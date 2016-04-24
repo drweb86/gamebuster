@@ -1,35 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GameBuster.Model;
 using HDE.Platform.Logging;
 
 namespace GameBuster.Services
 {
     class GameWatcherService: IDisposable
     {
-        private readonly TimeSpan _refreshProcessesTimeout;
+        private TimeSpan _refreshProcessesTimeout;
         private readonly ILog _log;
         private Thread _watchThread;
         private TimeSpan _timeToPlayRemainedMinutes;
         private readonly int _sessionId;
+        private GameBusterSettings _settings;
 
         public GameWatcherService(ILog log)
         {
-            _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
             _log = log;
-            _timeToPlayRemainedMinutes = new TimeSpan(0,5,0,0);
             _sessionId = Process.GetCurrentProcess().SessionId;
-            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {_timeToPlayRemainedMinutes.TotalMinutes} minute(s))...");
         }
 
-        public void Start()
+        /// <summary>
+        /// Starts or restarts the game watch service...
+        /// </summary>
+        /// <param name="settings"></param>
+        public void Start(GameBusterSettings settings)
         {
             Dispose();
+
+            _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
+            _timeToPlayRemainedMinutes = new TimeSpan(0, 5, 0, 0);
+
+            _settings = settings;
+
+            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {_timeToPlayRemainedMinutes.TotalMinutes} minute(s))...");
+            _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}");
 
             _watchThread = new Thread(OnWatchGames);
             _watchThread.Start();
@@ -74,10 +86,33 @@ namespace GameBuster.Services
         private void PlaySound()
         {
             _log.Info("Plaing sound...");
-            using (var simpleSound = new SoundPlayer(@"c:\Windows\Media\chimes.wav"))
-            {
-                simpleSound.PlaySync();
-            }
+
+            var soundFile = (!string.IsNullOrWhiteSpace(_settings.AlarmSoundFile) && File.Exists(_settings.AlarmSoundFile)) ?
+                _settings.AlarmSoundFile:
+                FindSystemRandomSound();
+
+            _log.Debug($"Sound file: {soundFile}");
+
+            var soundService = new SoundService();
+            soundService.Play(soundFile);
+
+        }
+
+        private string FindSystemRandomSound()
+        {
+            var soundsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Media");
+            if (!Directory.Exists(soundsFolder))
+                throw new ApplicationException($"Can't locate directory {soundsFolder}");
+
+            var allWavFiles = Directory.GetFiles(soundsFolder, "Alarm*.wav").ToList();
+            allWavFiles.AddRange(Directory.GetFiles(soundsFolder, "Ring*.wav"));
+            allWavFiles.AddRange(Directory.GetFiles(soundsFolder, "tada.wav"));
+
+            if (allWavFiles.Count == 0)
+                throw new ApplicationException($"Can't locate Alarm*.wav/Ring*.wav/tada.wav music files in {soundsFolder}.");
+
+            var random = new Random();
+            return allWavFiles[random.Next(allWavFiles.Count)];
         }
 
         private IEnumerable<string> GetCurrentUserProcessNamees()

@@ -79,6 +79,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\SerializerHelper.cs" />
     <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Wpf\ViewModelActionCommand.cs" />
+    <Compile Include="Wpf\ViewModelCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Platform.snk" />
