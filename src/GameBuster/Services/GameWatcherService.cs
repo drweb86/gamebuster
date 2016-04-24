@@ -17,7 +17,7 @@ namespace GameBuster.Services
         private TimeSpan _refreshProcessesTimeout;
         private readonly ILog _log;
         private Thread _watchThread;
-        private TimeSpan _timeToPlayRemainedMinutes;
+        private TimeSpan _timeToPlayRemained;
         private readonly int _sessionId;
         private GameBusterSettings _settings;
 
@@ -36,12 +36,12 @@ namespace GameBuster.Services
             Dispose();
 
             _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
-            _timeToPlayRemainedMinutes = new TimeSpan(0, 5, 0, 0);
-
+            
             _settings = settings;
+            _timeToPlayRemained = new TimeSpan(0, settings.PlayingTimeDurationHours, 0, 0);
 
-            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {_timeToPlayRemainedMinutes.TotalMinutes} minute(s))...");
-            _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}");
+            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {_timeToPlayRemained.TotalMinutes} minute(s))...");
+            _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}; playing time duration, hours: {settings.PlayingTimeDurationHours}");
 
             _watchThread = new Thread(OnWatchGames);
             _watchThread.Start();
@@ -60,14 +60,14 @@ namespace GameBuster.Services
                     if (userProcessNames.Any(processName => string.Compare(
                         processName, secretProcessName, StringComparison.OrdinalIgnoreCase) == 0))
                     {
-                        if (_timeToPlayRemainedMinutes <= new TimeSpan(0, 0, 0, 0))
+                        if (_timeToPlayRemained <= new TimeSpan(0, 0, 0, 0))
                         {
                             PlaySound();
                         }
                         else
                         {
-                            _timeToPlayRemainedMinutes -= _refreshProcessesTimeout;
-                            _log.Info($"{_timeToPlayRemainedMinutes.TotalMinutes} minute(s) of plaing remained ({secretProcessName} was detected).");
+                            _timeToPlayRemained -= _refreshProcessesTimeout;
+                            _log.Info($"{_timeToPlayRemained.TotalMinutes} minute(s) of plaing remained ({secretProcessName} was detected).");
                         }
                     }
                     else

@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:GameBuster.ViewModel"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:model="clr-namespace:GameBuster.Model"
         mc:Ignorable="d"
         Title="Settings - Game Buster" 
         Height="350" 
@@ -21,46 +23,66 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <StackPanel Background="{StaticResource Page.Header.OrdinaryPage.BackgroundBrush}">
-        <Label Style="{StaticResource Page.InputPrompt.Label.Style}">Alarm Sound</Label>
-        <Label Style="{StaticResource Page.InputInformation.Label.Style}" 
-                Width="600" 
-                HorizontalAlignment="Left">
-            <AccessText TextWrapping="WrapWithOverflow">
-                This sound will be used to notify about time to get out of games. 
-                If file is not specified or doesn't exist, sound will be chosen 
-                randomly among installed into Windows\Media folder wav files.
-            </AccessText>
-        </Label>
-        <Grid Margin="0 0 20 0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Visible">
+        <StackPanel Background="{StaticResource Page.Header.OrdinaryPage.BackgroundBrush}">
+            <Label Style="{StaticResource Page.InputPrompt.Label.Style}">Alarm Sound</Label>
+            <Label Style="{StaticResource Page.InputInformation.Label.Style}" 
+                    Width="600" 
+                    HorizontalAlignment="Left">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    This sound will be used to notify about time to get out of games. 
+                    If file is not specified or doesn't exist, sound will be chosen 
+                    randomly among installed into Windows\Media folder wav files.
+                </AccessText>
+            </Label>
+
+            <Grid Margin="0 0 20 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
         
-            <TextBox 
-                Style="{StaticResource TextBox.Normal.Style}"
-                Grid.Column="0" 
-                Text="{Binding AlarmSoundFile}" />
+                <TextBox 
+                    Style="{StaticResource TextBox.Normal.Style}"
+                    Grid.Column="0" 
+                    Text="{Binding AlarmSoundFile}" />
         
-            <Button Style="{StaticResource Button.Normal.Style}"
-                Grid.Column="1"
-                ToolTip="Browse for file..."
-                CommandParameter="{Binding}"
-                Command="{Binding BrowseAlarmFileCommand}" >...</Button>
-        </Grid>
-        
-        <StackPanel Margin="0 15 0 0" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button
-                Margin="0 0 10 0"
-                Style="{StaticResource Button.Normal.Style}"
-                CommandParameter="{Binding}"
-                Command="{Binding AcceptSettingsCommand}">OK</Button>
-            <Button
-                Margin="0 0 20 0"
-                Style="{StaticResource Button.Normal.Style}"
-                CommandParameter="{Binding}"
-                Command="{Binding DeclineSettingsCommand}">Cancel</Button>
+                <Button Style="{StaticResource Button.Normal.Style}"
+                    Grid.Column="1"
+                    ToolTip="Browse for file..."
+                    CommandParameter="{Binding}"
+                    Command="{Binding BrowseAlarmFileCommand}" >...</Button>
+            </Grid>
+
+            <Label Style="{StaticResource Page.InputPrompt.Label.Style}">Playing time duration</Label>
+            <Label Style="{StaticResource Page.InputInformation.Label.Style}" 
+                    Width="600" 
+                    HorizontalAlignment="Left">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    Here you can define timeout, after which sound notifications will occur.
+                    Sound notifications will be repeated with sime timeout until you 
+                    terminate the application from tray.
+                </AccessText>
+            </Label>
+            <xctk:IntegerUpDown 
+                Style="{StaticResource IntegerUpDown.Normal.Style}"
+                Margin="30 0 20 0"
+                Value="{Binding PlayingTimeDurationHours}" 
+                Minimum="{x:Static model:GameBusterSettings.MinimumPlayingTimeDurationHours}"
+                FormatString="0 hour(s)"/>
+
+            <StackPanel Margin="0 15 0 0" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button
+                    Margin="0 0 10 0"
+                    Style="{StaticResource Button.Normal.Style}"
+                    CommandParameter="{Binding}"
+                    Command="{Binding AcceptSettingsCommand}">OK</Button>
+                <Button
+                    Margin="0 0 20 0"
+                    Style="{StaticResource Button.Normal.Style}"
+                    CommandParameter="{Binding}"
+                    Command="{Binding DeclineSettingsCommand}">Cancel</Button>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </ScrollViewer>
 </Window>

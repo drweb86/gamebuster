@@ -21,6 +21,16 @@ namespace GameBuster.ViewModel
         public SettingsWindowViewModel()
         {
             AlarmSoundFile = _controller.Model.Settings.AlarmSoundFile;
+            PlayingTimeDurationHours = _controller.Model.Settings.PlayingTimeDurationHours;
+        }
+
+        public static readonly DependencyProperty PlayingTimeDurationHoursProperty = DependencyProperty.Register(
+            "PlayingTimeDurationHours", typeof (int), typeof (SettingsWindowViewModel), new PropertyMetadata(default(int)));
+
+        public int PlayingTimeDurationHours
+        {
+            get { return (int) GetValue(PlayingTimeDurationHoursProperty); }
+            set { SetValue(PlayingTimeDurationHoursProperty, value); }
         }
 
         public static readonly DependencyProperty AlarmSoundFileProperty = DependencyProperty.Register("AlarmSoundFile", typeof (string), typeof (SettingsWindowViewModel), new PropertyMetadata(default(string)));
@@ -77,7 +87,7 @@ namespace GameBuster.ViewModel
 
         private void AcceptSettings()
         {
-            _controller.AcceptSettings(new GameBusterSettings(AlarmSoundFile));
+            _controller.AcceptSettings(new GameBusterSettings(AlarmSoundFile, PlayingTimeDurationHours));
 
             Application.Current.MainWindow.Close();
             Application.Current.MainWindow = null;
