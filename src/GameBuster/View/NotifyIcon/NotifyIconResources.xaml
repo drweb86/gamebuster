@@ -41,7 +41,6 @@
     <tb:TaskbarIcon x:Key="NotifyIcon"
                     IconSource="/View/NotifyIcon/Red.ico"
                     NoLeftClickDelay="True"
-                    ToolTipText="Double-click for window, right-click for menu"
                     LeftClickCommand="{Binding ShowWindowCommand}"
                     ContextMenu="{StaticResource SysTrayMenu}">
 
@@ -49,6 +48,21 @@
         <tb:TaskbarIcon.DataContext>
             <notifyIcon:NotifyIconViewModel />
         </tb:TaskbarIcon.DataContext>
+        <tb:TaskbarIcon.TrayToolTip>
+            <Border
+              Background="White"
+              BorderThickness="2"
+              CornerRadius="4"
+              Opacity="0.8"
+              Width="240"
+              Height="40">
+                <TextBlock
+                    Text="{Binding RemainingTime}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                />
+            </Border>
+        </tb:TaskbarIcon.TrayToolTip>
     </tb:TaskbarIcon>
 
 </ResourceDictionary>

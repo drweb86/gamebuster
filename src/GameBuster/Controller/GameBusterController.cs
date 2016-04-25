@@ -77,5 +77,10 @@ namespace GameBuster.Controller
                 .Save(Model.Settings);
             StartService();
         }
+
+        public TimeSpan GetRemainingTime()
+        {
+            return _gameWatcherService.GetRemainingTime();
+        }
     }
 }

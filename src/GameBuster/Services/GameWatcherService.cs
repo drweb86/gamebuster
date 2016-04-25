@@ -151,5 +151,10 @@ namespace GameBuster.Services
                 _watchThread = null;
             }
         }
+
+        public TimeSpan GetRemainingTime()
+        {
+            return _timeToPlayRemained;
+        }
     }
 }
