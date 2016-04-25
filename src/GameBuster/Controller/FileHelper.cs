@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace GameBuster.Controller
     {
         public static string LogsFolder { get; private set; }
         public static string SettingsFolder { get; private set; }
+        public static string Executable { get; set; }
 
         static FileHelper ()
         {
@@ -21,6 +23,8 @@ namespace GameBuster.Controller
             SettingsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameBuster");
             if (!Directory.Exists(SettingsFolder))
                 Directory.CreateDirectory(SettingsFolder);
+
+            Executable = Assembly.GetExecutingAssembly().Location;
         }
     }
 }

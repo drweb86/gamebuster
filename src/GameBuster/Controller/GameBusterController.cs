@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using GameBuster.Model;
 using GameBuster.Services;
 using HDE.Platform.AspectOrientedFramework;
@@ -30,6 +25,9 @@ namespace GameBuster.Controller
             LoadSettings();
             _gameWatcherService = new GameWatcherService(Log);
             StartService();
+#if !DEBUG
+            StartOnUserLogin();
+#endif
         }
         private static GameBusterController _instance;
         public static GameBusterController Controller
@@ -43,7 +41,7 @@ namespace GameBuster.Controller
             }
         }
 
-        #endregion
+#endregion
 
         public override void Dispose()
         {
@@ -81,6 +79,12 @@ namespace GameBuster.Controller
         public TimeSpan GetRemainingTime()
         {
             return _gameWatcherService.GetRemainingTime();
+        }
+
+        public void StartOnUserLogin()
+        {
+            new StartupService(Log)
+                .StartOnUserLogin();
         }
     }
 }
