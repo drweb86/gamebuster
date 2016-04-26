@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,110 @@ namespace GameBuster.ViewModel
         {
             AlarmSoundFile = _controller.Model.Settings.AlarmSoundFile;
             PlayingTimeDurationHours = _controller.Model.Settings.PlayingTimeDurationHours;
+            RefreshProcesses();
+            SetKnownGames(_controller.Model.Settings.KnownGames); //TODO:
+        }
+
+        private void RefreshProcesses()
+        {
+            ProcessNames = _controller
+                .GetProcessNames(true)
+                .OrderBy(item => item, StringComparer.OrdinalIgnoreCase)
+                .Select(item=>new CheckItem(item, false))
+                .ToArray();
+        }
+
+        public static readonly DependencyProperty GameProcessNamesProperty = DependencyProperty.Register(
+            "GameProcessNames", typeof (List<CheckItem>), typeof (SettingsWindowViewModel), new PropertyMetadata(default(List<CheckItem>)));
+        
+        public List<CheckItem> GameProcessNames
+        {
+            get { return (List<CheckItem>) GetValue(GameProcessNamesProperty); }
+            set
+            {
+                SetValue(GameProcessNamesProperty, value); 
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand RefreshProcessNamesCommand { get; } = new ViewModelActionCommand<SettingsWindowViewModel>(vm=>vm.RefreshProcesses());
+        public ICommand AddSelectedProcessesCommand { get; } = new ViewModelActionCommand<SettingsWindowViewModel>(vm => vm.AddSelectedProcesses());
+        public ICommand RemoveSelectedGamesCommand { get; } = new ViewModelActionCommand<SettingsWindowViewModel>(vm => vm.RemoveSelectedGames());
+
+        private void RemoveSelectedGames()
+        {
+            GameProcessNames = GameProcessNames
+                .Where(item => !item.IsChecked)
+                .ToList();
+        }
+
+        public ICommand AddProcessNameCommand { get; } = new ViewModelActionCommand<SettingsWindowViewModel>(vm => vm.AddProcessName());
+
+        public static readonly DependencyProperty ProcessNameProperty = DependencyProperty.Register(
+            "ProcessName", typeof (string), typeof (SettingsWindowViewModel), new PropertyMetadata(default(string)));
+
+        public string ProcessName
+        {
+            get { return (string) GetValue(ProcessNameProperty); }
+            set { SetValue(ProcessNameProperty, value); }
+        }
+
+        private void AddProcessName()
+        {
+            var gameProcessNames = GameProcessNames
+                .Select(item => item.Title)
+                .ToList();
+
+            if (!gameProcessNames.Contains(ProcessName))
+            {
+                gameProcessNames.Add(ProcessName);
+            }
+
+            SetKnownGames(gameProcessNames);
+        }
+
+        private void AddSelectedProcesses()
+        {
+            var gameProcessNames = GameProcessNames
+                .Select(item => item.Title)
+                .ToList();
+
+            var itemsToAdd = ProcessNames
+                .Where(item => item.IsChecked)
+                .ToArray();
+
+            foreach (var itemToAdd in itemsToAdd)
+            {
+                itemToAdd.IsChecked = false;
+
+                if (!gameProcessNames.Contains(itemToAdd.Title))
+                {
+                    gameProcessNames.Add(itemToAdd.Title);
+                }
+            }
+
+            SetKnownGames(gameProcessNames);
+        }
+
+        private void SetKnownGames(List<string> gameProcessNames)
+        {
+            GameProcessNames = gameProcessNames
+                .OrderBy(item => item, StringComparer.OrdinalIgnoreCase)
+                .Select(item => new CheckItem(item, false))
+                .ToList();
+        }
+
+        public static readonly DependencyProperty ProcessNamesProperty = DependencyProperty.Register(
+            "ProcessNames", typeof (IEnumerable<CheckItem>), typeof (SettingsWindowViewModel), new PropertyMetadata(default(IEnumerable<CheckItem>)));
+
+        public IEnumerable<CheckItem> ProcessNames
+        {
+            get { return (IEnumerable<CheckItem>) GetValue(ProcessNamesProperty); }
+            set
+            {
+                SetValue(ProcessNamesProperty, value);
+                OnPropertyChanged();
+            }
         }
 
         public static readonly DependencyProperty PlayingTimeDurationHoursProperty = DependencyProperty.Register(
@@ -64,7 +169,7 @@ namespace GameBuster.ViewModel
         private void BrowseAlarmFile()
         {
             var browseAlarmFileDialog = new OpenFileDialog();
-            var supportedFormats = new SoundService().GetSupportedAudioFormats();
+            var supportedFormats = new SoundService(_controller.Log).GetSupportedAudioFormats();
 
             browseAlarmFileDialog.Filter = 
                 string.Join(",", 
@@ -87,7 +192,11 @@ namespace GameBuster.ViewModel
 
         private void AcceptSettings()
         {
-            _controller.AcceptSettings(new GameBusterSettings(AlarmSoundFile, PlayingTimeDurationHours));
+            var knownGames = GameProcessNames
+                .Select(item => item.Title)
+                .ToList();
+
+            _controller.AcceptSettings(new GameBusterSettings(AlarmSoundFile, PlayingTimeDurationHours, knownGames));
 
             Application.Current.MainWindow.Close();
             Application.Current.MainWindow = null;

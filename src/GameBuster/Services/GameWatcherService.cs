@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Media;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using GameBuster.Model;
 using HDE.Platform.Logging;
 
@@ -22,7 +15,6 @@ namespace GameBuster.Services
         private readonly ILog _log;
         private Thread _watchThread;
         private TimeSpan _playingTimeRemained;
-        private readonly int _sessionId;
         private GameBusterSettings _settings;
 
         #endregion
@@ -32,7 +24,6 @@ namespace GameBuster.Services
         public GameWatcherService(ILog log)
         {
             _log = log;
-            _sessionId = Process.GetCurrentProcess().SessionId;
         }
 
         #endregion
@@ -47,7 +38,7 @@ namespace GameBuster.Services
 
             _settings = settings;
             
-            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {settings.PlayingTimeDurationHours} minute(s))...");
+            _log.Debug($"Starting game watcher service (refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {settings.PlayingTimeDurationHours} minute(s))...");
             _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}; playing time duration, hours: {settings.PlayingTimeDurationHours}");
 
             _watchThread = new Thread(OnWatchGames);
@@ -87,14 +78,19 @@ namespace GameBuster.Services
 
         private bool GameIsRunning()
         {
-            var userProcessNames = GetCurrentUserProcessNamees();
-            const string secretProcessName = "gta5";
-            var result = userProcessNames.Any(processName => string.Compare(
-                processName, secretProcessName, StringComparison.OrdinalIgnoreCase) == 0);
+            var processHelperService = new ProcessHelperService(_log);
+            var userProcessNames = processHelperService.GetCurrentUserProcessNames();
+            foreach (var userProcess in userProcessNames)
+            {
+                if (_settings.KnownGames.Contains(userProcess))
+                {
+                    _log.Info($"{userProcess} is running!");
+                    return true;
+                }
+            }
 
-            _log.Info(result ? "Game is running" : "Game is not running");
-
-            return result;
+            _log.Info("Game is not running");
+            return false;
         }
 
         /// <summary>
@@ -112,61 +108,9 @@ namespace GameBuster.Services
 
         private void PlaySound()
         {
-            _log.Info("Plaing sound...");
-
-            var soundFile = (!string.IsNullOrWhiteSpace(_settings.AlarmSoundFile) && File.Exists(_settings.AlarmSoundFile)) ?
-                _settings.AlarmSoundFile:
-                FindSystemRandomSound();
-
-            _log.Debug($"Sound file: {soundFile}");
-
-            var soundService = new SoundService();
+            var soundService = new SoundService(_log);
+            var soundFile = soundService.FindAlarmSound(_settings.AlarmSoundFile);
             soundService.Play(soundFile);
-
-        }
-
-        private string FindSystemRandomSound()
-        {
-            var soundsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Media");
-            if (!Directory.Exists(soundsFolder))
-                throw new ApplicationException($"Can't locate directory {soundsFolder}");
-
-            var allWavFiles = Directory.GetFiles(soundsFolder, "Alarm*.wav").ToList();
-            allWavFiles.AddRange(Directory.GetFiles(soundsFolder, "Ring*.wav"));
-            allWavFiles.AddRange(Directory.GetFiles(soundsFolder, "tada.wav"));
-
-            if (allWavFiles.Count == 0)
-                throw new ApplicationException($"Can't locate Alarm*.wav/Ring*.wav/tada.wav music files in {soundsFolder}.");
-
-            var random = new Random();
-            return allWavFiles[random.Next(allWavFiles.Count)];
-        }
-
-        private IEnumerable<string> GetCurrentUserProcessNamees()
-        {
-            _log.Info("Populating list of processes:");
-            var allProcesses = Process.GetProcesses();
-
-            var currentUserProcessNames = new List<string>();
-
-            foreach (var process in allProcesses)
-            {
-                try
-                {
-                    if (process.SessionId == _sessionId)
-                    {
-                        currentUserProcessNames.Add(process.ProcessName);
-                        _log.Info($"- {process.ProcessName}");
-                    }
-                }
-                catch (Exception e)
-                {
-                    _log.Error($"{nameof(GameWatcherService)}: Failed to load details for process {process.ProcessName}.");
-                    _log.Error(e);
-                }
-            }
-
-            return currentUserProcessNames;
         }
 
         public void Dispose()
@@ -179,14 +123,11 @@ namespace GameBuster.Services
             }
         }
 
-        public TimeSpan GetRemainingTime()
-        {
-            return _playingTimeRemained;
-        }
+        public TimeSpan PlayingTimeRemained => _playingTimeRemained;
 
-        public void AddMoreTime(TimeSpan timeSpan)
+        public void Extend(TimeSpan playingTime)
         {
-            _playingTimeRemained += timeSpan;
+            _playingTimeRemained += playingTime;
         }
     }
 }

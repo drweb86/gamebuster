@@ -33,7 +33,7 @@
             </MenuItem.Icon>
         </MenuItem>
         <Separator />
-        <MenuItem  Header="i need another 20 minutes to finish that mission!!!" 
+        <MenuItem  Header="I need another 20 minutes to finish that mission!!!" 
                    CommandParameter="{Binding}"
                    Command="{Binding AddMoreTimeCommand}" />
         <Separator />

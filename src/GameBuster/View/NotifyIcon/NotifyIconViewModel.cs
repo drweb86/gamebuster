@@ -51,9 +51,11 @@ namespace GameBuster.View.NotifyIcon
                     CommandAction = () =>
                     {
                         if (Application.Current.MainWindow == null)
+                        {
                             Application.Current.MainWindow = new SettingsWindow();
-
-                        if (!Application.Current.MainWindow.IsVisible)
+                            Application.Current.MainWindow.Show(); //IsVisible is true for created window (bug of WPF)
+                        }
+                        else if (!Application.Current.MainWindow.IsVisible)
                             Application.Current.MainWindow.Show();
                     }
                 };
@@ -98,7 +100,7 @@ namespace GameBuster.View.NotifyIcon
         public void RefreshRemainingTime()
         {
             string text;
-            var remainingTime = GameBusterController.Controller.GetRemainingTime();
+            var remainingTime = GameBusterController.Controller.PlayingTimeRemained;
             if (remainingTime <= new TimeSpan(0, 0, 0, 0))
                 text = "Time for gaming finished.";
             else

@@ -105,9 +105,11 @@
     <Compile Include="Controller\GameBusterController.cs" />
     <Compile Include="Model\GameBusterSettings.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Services\ProcessHelperService.cs" />
     <Compile Include="Services\SoundService.cs" />
     <Compile Include="Services\GameWatcherService.cs" />
     <Compile Include="Services\StartupService.cs" />
+    <Compile Include="ViewModel\ProcessInfo.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="View\NotifyIcon\NotifyIconViewModel.cs" />
     <Compile Include="View\SettingsWindow.xaml.cs">

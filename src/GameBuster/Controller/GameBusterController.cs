@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GameBuster.Model;
 using GameBuster.Services;
 using HDE.Platform.AspectOrientedFramework;
@@ -90,10 +91,7 @@ namespace GameBuster.Controller
             StartService();
         }
 
-        public TimeSpan GetRemainingTime()
-        {
-            return _gameWatcherService.GetRemainingTime();
-        }
+        public TimeSpan PlayingTimeRemained => _gameWatcherService.PlayingTimeRemained;
 
         public void StartOnUserLogin()
         {
@@ -103,7 +101,12 @@ namespace GameBuster.Controller
 
         public void AddMoreTime(TimeSpan timeSpan)
         {
-            _gameWatcherService.AddMoreTime(timeSpan);
+            _gameWatcherService.Extend(timeSpan);
+        }
+
+        public IEnumerable<string> GetProcessNames(bool withWindow)
+        {
+            return new ProcessHelperService(Log).GetCurrentUserProcessNames(withWindow);
         }
     }
 }

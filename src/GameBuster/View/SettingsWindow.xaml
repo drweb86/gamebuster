@@ -8,7 +8,7 @@
         xmlns:model="clr-namespace:GameBuster.Model"
         mc:Ignorable="d"
         Title="Settings - Game Buster" 
-        Height="350" 
+        Height="650" 
         Width="660"
         MinWidth="660"
         WindowStartupLocation="CenterScreen"
@@ -23,12 +23,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Visible">
+    <ScrollViewer VerticalScrollBarVisibility="Visible" Padding="32 0 20 20">
         <StackPanel Background="{StaticResource Page.Header.OrdinaryPage.BackgroundBrush}">
-            <Label Style="{StaticResource Page.InputPrompt.Label.Style}">Alarm Sound</Label>
-            <Label Style="{StaticResource Page.InputInformation.Label.Style}" 
-                    Width="600" 
-                    HorizontalAlignment="Left">
+            <Label Style="{StaticResource Label.Heading1.Style}">Alarm Sound</Label>
+            <Label Style="{StaticResource Label.Paragraph.Style}">
                 <AccessText TextWrapping="WrapWithOverflow">
                     This sound will be used to notify about time to get out of games. 
                     If file is not specified or doesn't exist, sound will be chosen 
@@ -42,9 +40,8 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
         
-                <TextBox 
+                <TextBox Grid.Column="0" 
                     Style="{StaticResource TextBox.Normal.Style}"
-                    Grid.Column="0" 
                     Text="{Binding AlarmSoundFile}" />
         
                 <Button Style="{StaticResource Button.Normal.Style}"
@@ -54,10 +51,8 @@
                     Command="{Binding BrowseAlarmFileCommand}" >...</Button>
             </Grid>
 
-            <Label Style="{StaticResource Page.InputPrompt.Label.Style}">Playing time duration</Label>
-            <Label Style="{StaticResource Page.InputInformation.Label.Style}" 
-                    Width="600" 
-                    HorizontalAlignment="Left">
+            <Label Style="{StaticResource Label.Heading1.Style}">Playing time duration</Label>
+            <Label Style="{StaticResource Label.Paragraph.Style}">
                 <AccessText TextWrapping="WrapWithOverflow">
                     Here you can define timeout, after which sound notifications will occur.
                     Sound notifications will be repeated with sime timeout until you 
@@ -66,10 +61,81 @@
             </Label>
             <xctk:IntegerUpDown 
                 Style="{StaticResource IntegerUpDown.Normal.Style}"
-                Margin="30 0 20 0"
+                Margin="0 0 20 0"
                 Value="{Binding PlayingTimeDurationHours}" 
                 Minimum="{x:Static model:GameBusterSettings.MinimumPlayingTimeDurationHours}"
                 FormatString="0 hour(s)"/>
+
+            <Label Style="{StaticResource Label.Heading1.Style}">Known games list</Label>
+            <Label Style="{StaticResource Label.Paragraph.Style}">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    Here you can specify the games to look after. You can either select them 
+                    from list of running processes or enter manually.
+                </AccessText>
+            </Label>
+            <Grid Margin="0 0 20 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="15" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" 
+                           Style="{StaticResource Label.Paragraph.Style}">Processes list</Label>
+                    <xctk:CheckListBox Grid.Row="1" MinHeight="150"
+                                       ItemsSource="{Binding ProcessNames}"
+                                       DisplayMemberPath="Title"
+                                       SelectedMemberPath="IsChecked" />
+                    <Button Grid.Row="2" 
+                            Style="{StaticResource Button.Normal.Style}"
+                            CommandParameter="{Binding}"
+                            Command="{Binding AddSelectedProcessesCommand}">Add Selected Items >></Button>
+                    <Button Grid.Row="3" 
+                            Style="{StaticResource Button.Normal.Style}"
+                            CommandParameter="{Binding}"
+                            Command="{Binding RefreshProcessNamesCommand}">Refresh List</Button>
+
+                    <Label Grid.Row="4" 
+                           Style="{StaticResource Label.Paragraph.Style}">Process name</Label>
+                    <TextBox Grid.Row="5"
+                            Style="{StaticResource TextBox.Normal.Style}"
+                            Text="{Binding ProcessName}" />
+                    <Button Grid.Row="6" 
+                            Style="{StaticResource Button.Normal.Style}"
+                            CommandParameter="{Binding}"
+                            Command="{Binding AddProcessNameCommand}">Add >></Button>
+                </Grid>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" 
+                        Style="{StaticResource Label.Paragraph.Style}"
+                           >Games List</Label>
+                    <xctk:CheckListBox Grid.Row="1" 
+                        ItemsSource="{Binding GameProcessNames}"
+                        DisplayMemberPath="Title"
+                        SelectedMemberPath="IsChecked">
+                    
+                    </xctk:CheckListBox>
+                    <Button Grid.Row="2" 
+                            Style="{StaticResource Button.Normal.Style}"
+                            CommandParameter="{Binding}"
+                            Command="{Binding RemoveSelectedGamesCommand}">Remove Selected Items</Button>
+                </Grid>
+            </Grid>
 
             <StackPanel Margin="0 15 0 0" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button

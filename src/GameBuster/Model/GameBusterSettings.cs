@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GameBuster.Model
 {
@@ -33,17 +34,39 @@ namespace GameBuster.Model
             }
         }
 
+        private List<string> _knownGames;
+
+        public List<string> KnownGames
+        {
+            get { return _knownGames; }
+            set
+            {
+                if (value == null)
+                    if (_isDeserialization) // support for old options
+                    {
+                        value = new List<string>();
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException(nameof(value), $"Known games list is empty.");
+                    }
+
+                _knownGames = value;
+            }
+        }
+
         public GameBusterSettings() // serialization.
         {
             _isDeserialization = true;
             PlayingTimeDurationHours = MinimumPlayingTimeDurationHours;
+            KnownGames = new List<string>();
         }
 
-        public GameBusterSettings(string alarmSoundFile, int playingTimeDurationHours) // serialization.
+        public GameBusterSettings(string alarmSoundFile, int playingTimeDurationHours, List<string> knownGames) // serialization.
         {
             AlarmSoundFile = alarmSoundFile;
             PlayingTimeDurationHours = playingTimeDurationHours;
-
+            KnownGames = knownGames;
         }
     }
 }
