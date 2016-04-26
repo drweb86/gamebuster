@@ -32,8 +32,11 @@
                 </Viewbox>
             </MenuItem.Icon>
         </MenuItem>
-        <!--<MenuItem Header="Hide Window" Command="{Binding HideWindowCommand}" />
-        <Separator />-->
+        <Separator />
+        <MenuItem  Header="i need another 20 minutes to finish that mission!!!" 
+                   CommandParameter="{Binding}"
+                   Command="{Binding AddMoreTimeCommand}" />
+        <Separator />
         <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}" />
     </ContextMenu>
 

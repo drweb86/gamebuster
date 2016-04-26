@@ -100,5 +100,10 @@ namespace GameBuster.Controller
             new StartupService(Log)
                 .StartOnUserLogin();
         }
+
+        public void AddMoreTime(TimeSpan timeSpan)
+        {
+            _gameWatcherService.AddMoreTime(timeSpan);
+        }
     }
 }

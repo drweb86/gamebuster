@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using GameBuster.Annotations;
 using GameBuster.Controller;
+using HDE.Platform.Wpf;
 
 namespace GameBuster.View.NotifyIcon
 {
@@ -28,6 +29,13 @@ namespace GameBuster.View.NotifyIcon
                 SetValue(RemainingTimeProperty, value); 
                 OnPropertyChanged();
             }
+        }
+
+        public ICommand AddMoreTimeCommand { get; } = new ViewModelActionCommand<NotifyIconViewModel>(vm=>vm.AddMoreTime());
+
+        private void AddMoreTime()
+        {
+            GameBusterController.Controller.AddMoreTime(new TimeSpan(0, 0, 20, 0));
         }
 
         /// <summary>
