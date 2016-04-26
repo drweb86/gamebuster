@@ -10,6 +10,13 @@ namespace GameBuster.Controller
     class GameBusterController : BaseController<GameBusterModel>
     {
         private readonly GameWatcherService _gameWatcherService;
+        private readonly ApplicationSingleInstancePerUser _singleInstance = new ApplicationSingleInstancePerUser(
+#if DEBUG
+            "GabeBuster-DEBUG"
+#else
+            "GabeBuster"
+#endif
+            );
 
         protected override ILog CreateOpenLog()
         {
@@ -18,7 +25,7 @@ namespace GameBuster.Controller
             return fileLog;
         }
 
-        #region Singleton
+#region Singleton
 
         private GameBusterController()
         {
@@ -27,7 +34,13 @@ namespace GameBuster.Controller
             StartService();
 #if !DEBUG
             StartOnUserLogin();
+
 #endif
+            if (!_singleInstance.FirstInstance)
+            {
+                Log.Warning("Copy of already running application was launched. Exiting.");
+                Environment.Exit(1);
+            }
         }
         private static GameBusterController _instance;
         public static GameBusterController Controller
@@ -46,6 +59,7 @@ namespace GameBuster.Controller
         public override void Dispose()
         {
             StopService();
+            _singleInstance.Dispose();
             base.Dispose();
         }
 

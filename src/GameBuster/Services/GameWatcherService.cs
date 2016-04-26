@@ -14,18 +14,27 @@ namespace GameBuster.Services
 {
     class GameWatcherService: IDisposable
     {
-        private TimeSpan _refreshProcessesTimeout;
+        #region Fields
+
+        private DateTime _lastAddTimePeriod = DateTime.MinValue;
+        private readonly TimeSpan _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
         private readonly ILog _log;
         private Thread _watchThread;
-        private TimeSpan _timeToPlayRemained;
+        private TimeSpan _playingTimeRemained;
         private readonly int _sessionId;
         private GameBusterSettings _settings;
+
+        #endregion
+
+        #region Constructors
 
         public GameWatcherService(ILog log)
         {
             _log = log;
             _sessionId = Process.GetCurrentProcess().SessionId;
         }
+
+        #endregion
 
         /// <summary>
         /// Starts or restarts the game watch service...
@@ -35,12 +44,9 @@ namespace GameBuster.Services
         {
             Dispose();
 
-            _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
-            
             _settings = settings;
-            _timeToPlayRemained = new TimeSpan(0, settings.PlayingTimeDurationHours, 0, 0);
-
-            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {_timeToPlayRemained.TotalMinutes} minute(s))...");
+            
+            _log.Debug($"Starting game watcher service (session id: {_sessionId}, refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {settings.PlayingTimeDurationHours} minute(s))...");
             _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}; playing time duration, hours: {settings.PlayingTimeDurationHours}");
 
             _watchThread = new Thread(OnWatchGames);
@@ -51,28 +57,23 @@ namespace GameBuster.Services
         {
             while (true)
             {
+                ExtendPlayingTime();
+
                 Thread.Sleep(_refreshProcessesTimeout);
 
                 try
                 {
-                    var userProcessNames = GetCurrentUserProcessNamees();
-                    const string secretProcessName = "gta5";
-                    if (userProcessNames.Any(processName => string.Compare(
-                        processName, secretProcessName, StringComparison.OrdinalIgnoreCase) == 0))
+                    if (!GameIsRunning())
+                        continue;
+
+                    if (_playingTimeRemained <= new TimeSpan(0, 0, 0, 0))
                     {
-                        if (_timeToPlayRemained <= new TimeSpan(0, 0, 0, 0))
-                        {
-                            PlaySound();
-                        }
-                        else
-                        {
-                            _timeToPlayRemained -= _refreshProcessesTimeout;
-                            _log.Info($"{_timeToPlayRemained.TotalMinutes} minute(s) of plaing remained ({secretProcessName} was detected).");
-                        }
+                        PlaySound();
                     }
                     else
                     {
-                        _log.Debug("Process was not detected.");
+                        _playingTimeRemained -= _refreshProcessesTimeout;
+                        _log.Info($"{_playingTimeRemained.TotalMinutes} minute(s) of playing remained.");
                     }
                 }
                 catch (Exception e)
@@ -80,6 +81,31 @@ namespace GameBuster.Services
                     _log.Error($"{nameof(GameWatcherService)}: Failed to watch games.");
                     _log.Error(e);
                 }
+            }
+        }
+
+        private bool GameIsRunning()
+        {
+            var userProcessNames = GetCurrentUserProcessNamees();
+            const string secretProcessName = "gta5";
+            var result = userProcessNames.Any(processName => string.Compare(
+                processName, secretProcessName, StringComparison.OrdinalIgnoreCase) == 0);
+
+            _log.Info(result ? "Game is running" : "Game is not running");
+
+            return result;
+        }
+
+        /// <summary>
+        /// Extends playing time each 24 hours on settings.PlayingTimeDurationHours
+        /// </summary>
+        private void ExtendPlayingTime()
+        {
+            var currentTime = DateTime.Now;
+            if (currentTime - _lastAddTimePeriod > new TimeSpan(1, 0, 0, 0))
+            {
+                _lastAddTimePeriod = currentTime;
+                _playingTimeRemained = new TimeSpan(0, _settings.PlayingTimeDurationHours, 0, 0);
             }
         }
 
@@ -154,7 +180,7 @@ namespace GameBuster.Services
 
         public TimeSpan GetRemainingTime()
         {
-            return _timeToPlayRemained;
+            return _playingTimeRemained;
         }
     }
 }

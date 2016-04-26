@@ -23,7 +23,7 @@ namespace GameBuster
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
+            
             //create the notifyicon (it's a resource declared in NotifyIconResources.xaml
             _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
             _notifyIcon.PreviewTrayToolTipOpen += OnPreviewTrayToolTipOpen;
