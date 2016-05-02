@@ -1,78 +1,51 @@
 ﻿using System;
-using System.Linq;
-using System.Threading;
-using GameBuster.Model;
 using HDE.Platform.Logging;
 
 namespace GameBuster.Services
 {
-    class GameWatcherService: IDisposable
+    class GameWatcherService: PerMinuteJobService
     {
+        #region Constants
+
+        private const int SleepStartsAtHoursAM = 1;
+        private const int SleepFinishesAtHoursAM = 7;
+
+        #endregion
+
         #region Fields
 
         private DateTime _lastAddTimePeriod = DateTime.MinValue;
-        private readonly TimeSpan _refreshProcessesTimeout = new TimeSpan(0, 0, 1, 0);
-        private readonly ILog _log;
-        private Thread _watchThread;
         private TimeSpan _playingTimeRemained;
-        private GameBusterSettings _settings;
-
+        
         #endregion
 
         #region Constructors
 
-        public GameWatcherService(ILog log)
+        public GameWatcherService(ILog log):base(log)
         {
-            _log = log;
         }
 
         #endregion
 
-        /// <summary>
-        /// Starts or restarts the game watch service...
-        /// </summary>
-        /// <param name="settings"></param>
-        public void Start(GameBusterSettings settings)
+        protected override void DoJobQuant()
         {
-            Dispose();
+            ExtendPlayingTime();
 
-            _settings = settings;
-            
-            _log.Debug($"Starting game watcher service (refresh timeout: {_refreshProcessesTimeout.TotalMinutes} minute(s), time to play: {settings.PlayingTimeDurationHours} minute(s))...");
-            _log.Debug($"Settings: alarm sound file: {settings.AlarmSoundFile}; playing time duration, hours: {settings.PlayingTimeDurationHours}");
+            if (!GameIsRunning())
+                return;
 
-            _watchThread = new Thread(OnWatchGames);
-            _watchThread.Start();
-        }
-
-        private void OnWatchGames()
-        {
-            while (true)
+            if (IsSleepingTime)
             {
-                ExtendPlayingTime();
-
-                Thread.Sleep(_refreshProcessesTimeout);
-
-                try
-                {
-                    if (!GameIsRunning())
-                        continue;
-
-                    if (_playingTimeRemained <= new TimeSpan(0, 0, 0, 0))
-                    {
-                        PlaySound();
-                    }
-                    else
-                    {
-                        _playingTimeRemained -= _refreshProcessesTimeout;
-                        _log.Info($"{_playingTimeRemained.TotalMinutes} minute(s) of playing remained.");
-                    }
-                }
-                catch (Exception e)
-                {
-                    _log.Error($"{nameof(GameWatcherService)}: Failed to watch games.");
-                    _log.Error(e);
-                }
+                PlaySound();
+            }
+            else if (_playingTimeRemained <= new TimeSpan(0, 0, 0, 0))
+            {
+                PlaySound();
+            }
+            else
+            {
+                _playingTimeRemained -= _refreshProcessesTimeout;
+                _log.Info($"{_playingTimeRemained.TotalMinutes} minute(s) of playing remained.");
             }
         }
 
@@ -82,7 +55,7 @@ namespace GameBuster.Services
             var userProcessNames = processHelperService.GetCurrentUserProcessNames();
             foreach (var userProcess in userProcessNames)
             {
-                if (_settings.KnownGames.Contains(userProcess))
+                if (_settings.IsKnown(userProcess))
                 {
                     _log.Info($"{userProcess} is running!");
                     return true;
@@ -113,17 +86,8 @@ namespace GameBuster.Services
             soundService.Play(soundFile);
         }
 
-        public void Dispose()
-        {
-            if (_watchThread != null)
-            {
-                _log.Debug("Stopping game watcher service...");
-                _watchThread.Abort();
-                _watchThread = null;
-            }
-        }
-
         public TimeSpan PlayingTimeRemained => _playingTimeRemained;
+        public bool IsSleepingTime => DateTime.Now.Hour >= SleepStartsAtHoursAM && DateTime.Now.Hour <= SleepFinishesAtHoursAM;
 
         public void Extend(TimeSpan playingTime)
         {

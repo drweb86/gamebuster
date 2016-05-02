@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using GameBuster.Controller;
+﻿using GameBuster.Controller;
 using HDE.Platform.Logging;
 using Microsoft.Win32;
 
@@ -26,7 +20,7 @@ namespace GameBuster.Services
             const string applicationKey = "GameBuster";
             RegistryKey runKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
-            if(runKey.GetValue(applicationKey) != FileHelper.Executable)
+            if((string)runKey.GetValue(applicationKey) != FileHelper.Executable)
             {
                 _log.Info("Added application startup with login of current user.");
                 runKey.SetValue(applicationKey, FileHelper.Executable);

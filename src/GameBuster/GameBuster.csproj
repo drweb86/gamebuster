@@ -104,7 +104,9 @@
     <Compile Include="Controller\FileHelper.cs" />
     <Compile Include="Controller\GameBusterController.cs" />
     <Compile Include="Model\GameBusterSettings.cs" />
+    <Compile Include="Model\SleepingQuotes.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Services\PerMinuteJobService.cs" />
     <Compile Include="Services\ProcessHelperService.cs" />
     <Compile Include="Services\SoundService.cs" />
     <Compile Include="Services\GameWatcherService.cs" />

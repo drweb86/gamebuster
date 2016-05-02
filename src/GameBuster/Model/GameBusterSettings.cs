@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameBuster.Model
 {
@@ -32,6 +33,11 @@ namespace GameBuster.Model
 
                 _playingTimeDurationHours = value;
             }
+        }
+
+        public bool IsKnown(string game)
+        {
+            return _knownGames.Any(item => string.Compare(item, game, StringComparison.OrdinalIgnoreCase) == 0);
         }
 
         private List<string> _knownGames;

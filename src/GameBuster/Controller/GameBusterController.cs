@@ -11,6 +11,7 @@ namespace GameBuster.Controller
     class GameBusterController : BaseController<GameBusterModel>
     {
         private readonly GameWatcherService _gameWatcherService;
+
         private readonly ApplicationSingleInstancePerUser _singleInstance = new ApplicationSingleInstancePerUser(
 #if DEBUG
             "GabeBuster-DEBUG"
@@ -32,6 +33,7 @@ namespace GameBuster.Controller
         {
             LoadSettings();
             _gameWatcherService = new GameWatcherService(Log);
+
             StartService();
 #if !DEBUG
             StartOnUserLogin();
@@ -92,6 +94,7 @@ namespace GameBuster.Controller
         }
 
         public TimeSpan PlayingTimeRemained => _gameWatcherService.PlayingTimeRemained;
+        public bool IsSleepingTime => _gameWatcherService.IsSleepingTime;
 
         public void StartOnUserLogin()
         {

@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using GameBuster.Annotations;
 using GameBuster.Controller;
+using GameBuster.Model;
 using HDE.Platform.Wpf;
 
 namespace GameBuster.View.NotifyIcon
@@ -31,13 +32,23 @@ namespace GameBuster.View.NotifyIcon
             }
         }
 
-        public ICommand AddMoreTimeCommand { get; } = new ViewModelActionCommand<NotifyIconViewModel>(vm=>vm.AddMoreTime());
+        public ICommand AddMoreTimeCommand { get; } = new ViewModelActionCommand<NotifyIconViewModel>(
+            vm =>vm.AddMoreTime());
 
         private void AddMoreTime()
         {
-            GameBusterController.Controller.AddMoreTime(new TimeSpan(0, 0, 20, 0));
+            if (GameBusterController.Controller.IsSleepingTime)
+            {
+                MessageBox.Show(SleepingQuotes.GetRandomGoSleepingMessage(), "Info - GameBuster", 
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Exclamation);
+            }
+            else
+            {
+                GameBusterController.Controller.AddMoreTime(new TimeSpan(0, 0, 20, 0));
+            }
         }
-
+        
         /// <summary>
         /// Shows a window, if none is already open.
         /// </summary>
@@ -101,7 +112,10 @@ namespace GameBuster.View.NotifyIcon
         {
             string text;
             var remainingTime = GameBusterController.Controller.PlayingTimeRemained;
-            if (remainingTime <= new TimeSpan(0, 0, 0, 0))
+
+            if (GameBusterController.Controller.IsSleepingTime)
+                text = "Sleeping time! Without excuses!";
+            else if (remainingTime <= new TimeSpan(0, 0, 0, 0))
                 text = "Time for gaming finished.";
             else
                 text = $"{remainingTime.TotalMinutes} minute(s) remained";
