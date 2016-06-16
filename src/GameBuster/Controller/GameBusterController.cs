@@ -107,9 +107,9 @@ namespace GameBuster.Controller
             _gameWatcherService.Extend(timeSpan);
         }
 
-        public IEnumerable<string> GetProcessNames(bool withWindow)
+        public IEnumerable<string> GetProcessNames()
         {
-            return new ProcessHelperService(Log).GetCurrentUserProcessNames(withWindow);
+            return new ProcessHelperService(Log).GetCurrentUserProcessNames(true, true);
         }
     }
 }

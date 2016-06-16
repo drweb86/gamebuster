@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HDE.Platform.Logging;
 
 namespace GameBuster.Services
@@ -12,6 +9,11 @@ namespace GameBuster.Services
     {
         private readonly ILog _log;
         private readonly int _sessionId;
+        private readonly List<string> _knownNonGames = new List<string>
+        {
+            "ApplicationFrameHost", "Calculator", "ConEmu64", "devenv", "ScriptedSandbox64", "ShellExperienceHost",
+            "PROCEXP64", "Far", "firefox", "KeePass", "mmc", "SnagitEditor", "explorer"
+        };
 
         public ProcessHelperService(ILog log)
         {
@@ -19,7 +21,7 @@ namespace GameBuster.Services
             _sessionId = Process.GetCurrentProcess().SessionId;
         }
 
-        public IEnumerable<string> GetCurrentUserProcessNames(bool withWindow = false)
+        public IEnumerable<string> GetCurrentUserProcessNames(bool withWindow, bool excludeKnownNonGames)
         {
             _log.Info("Populating list of processes:");
             var allProcesses = Process.GetProcesses();
@@ -35,6 +37,9 @@ namespace GameBuster.Services
                         _log.Info($"- {process.ProcessName}");
 
                         if (withWindow && process.MainWindowHandle == IntPtr.Zero)
+                            continue;
+
+                        if (excludeKnownNonGames && _knownNonGames.Contains(process.ProcessName))
                             continue;
 
                         currentUserProcessNames.Add(process.ProcessName);

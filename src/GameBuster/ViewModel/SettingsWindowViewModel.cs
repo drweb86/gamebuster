@@ -30,7 +30,7 @@ namespace GameBuster.ViewModel
         private void RefreshProcesses()
         {
             ProcessNames = _controller
-                .GetProcessNames(true)
+                .GetProcessNames()
                 .OrderBy(item => item, StringComparer.OrdinalIgnoreCase)
                 .Select(item=>new CheckItem(item, false))
                 .ToArray();

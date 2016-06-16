@@ -52,7 +52,7 @@ namespace GameBuster.Services
         private bool GameIsRunning()
         {
             var processHelperService = new ProcessHelperService(_log);
-            var userProcessNames = processHelperService.GetCurrentUserProcessNames();
+            var userProcessNames = processHelperService.GetCurrentUserProcessNames(true, true);
             foreach (var userProcess in userProcessNames)
             {
                 if (_settings.IsKnown(userProcess))
