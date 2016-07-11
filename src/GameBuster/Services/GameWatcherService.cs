@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using HDE.Platform.Logging;
 
 namespace GameBuster.Services
@@ -47,6 +48,42 @@ namespace GameBuster.Services
                 _playingTimeRemained -= _refreshProcessesTimeout;
                 _log.Info($"{_playingTimeRemained.TotalMinutes} minute(s) of playing remained.");
             }
+
+            if (TimeToKill())
+            {
+                KillRunningGames();
+            }
+        }
+
+        private void KillRunningGames()
+        {
+            _log.Info("Killing games");
+            var processHelperService = new ProcessHelperService(_log);
+            var userProcessNames = processHelperService.GetCurrentUserProcessNames(true, true);
+            foreach (var userProcess in userProcessNames)
+            {
+                if (_settings.IsKnown(userProcess))
+                {
+                    foreach (var process in Process.GetProcessesByName(userProcess))
+                    {
+                        _log.Error($"Killing {process.ProcessName}...");
+                        try
+                        {
+                            process.Kill();
+                        }
+                        catch (Exception e)
+                        {
+                            _log.Error(e);
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool TimeToKill()
+        {
+            return DateTime.Now.Hour >= _settings.BeginKillGameIntervalHour &&
+                   DateTime.Now.Hour <= _settings.EndKillGameIntervalHour;
         }
 
         private bool GameIsRunning()

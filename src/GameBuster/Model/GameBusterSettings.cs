@@ -7,7 +7,50 @@ namespace GameBuster.Model
     public class GameBusterSettings
     {
         private readonly bool _isDeserialization;
+
         public const int MinimumPlayingTimeDurationHours = 2;
+
+        public const int MinKillGameIntervalHour = 0;
+        public const int MaxKillGameIntervalHour = 23;
+
+        public const int DefaultKillGameIntervalBeginHour = 2;
+        public const int DefaultKillGameIntervalEndHour = 7;
+
+        private int _beginKillGameIntervalHour;
+
+        public static bool IsIntervalHourValid(int hour)
+        {
+            return hour <= MaxKillGameIntervalHour &&
+                   hour >= MinKillGameIntervalHour;
+        }
+
+        public int BeginKillGameIntervalHour
+        {
+            get { return _beginKillGameIntervalHour; }
+            set
+            {
+                if (!IsIntervalHourValid(value))
+                    throw new ArgumentOutOfRangeException(nameof(BeginKillGameIntervalHour));
+
+                _beginKillGameIntervalHour = value;
+            }
+        }
+
+
+        private int _endKillGameIntervalHour;
+
+        public int EndKillGameIntervalHour
+        {
+            get { return _endKillGameIntervalHour; }
+            set
+            {
+                if (!IsIntervalHourValid(value))
+                    throw new ArgumentOutOfRangeException(nameof(EndKillGameIntervalHour));
+
+                _endKillGameIntervalHour = value;
+            }
+        }
+
 
         /// <summary>
         /// User can define his own music file.
@@ -68,11 +111,18 @@ namespace GameBuster.Model
             KnownGames = new List<string>();
         }
 
-        public GameBusterSettings(string alarmSoundFile, int playingTimeDurationHours, List<string> knownGames) // serialization.
+        public GameBusterSettings(
+            string alarmSoundFile, 
+            int playingTimeDurationHours, 
+            List<string> knownGames,
+            int beginKillGameIntervalHour,
+            int endKillGameIntervalHour)
         {
             AlarmSoundFile = alarmSoundFile;
             PlayingTimeDurationHours = playingTimeDurationHours;
             KnownGames = knownGames;
+            BeginKillGameIntervalHour = beginKillGameIntervalHour;
+            EndKillGameIntervalHour = endKillGameIntervalHour;
         }
     }
 }

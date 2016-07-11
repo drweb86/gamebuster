@@ -9,6 +9,7 @@ using GameBuster.Annotations;
 using GameBuster.Controller;
 using GameBuster.Model;
 using HDE.Platform.Wpf;
+using HDE.Platform.Wpf.Commands;
 
 namespace GameBuster.View.NotifyIcon
 {
@@ -61,13 +62,7 @@ namespace GameBuster.View.NotifyIcon
                     CanExecuteFunc = () => true,
                     CommandAction = () =>
                     {
-                        if (Application.Current.MainWindow == null)
-                        {
-                            Application.Current.MainWindow = new SettingsWindow();
-                            Application.Current.MainWindow.Show(); //IsVisible is true for created window (bug of WPF)
-                        }
-                        else if (!Application.Current.MainWindow.IsVisible)
-                            Application.Current.MainWindow.Show();
+                        Application.Current.MainWindow.Show();
                     }
                 };
             }

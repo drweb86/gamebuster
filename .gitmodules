@@ -1,0 +1,3 @@
+[submodule "src/third-party/HDE.Platform"]
+	path = src/third-party/HDE.Platform
+	url = https://github.com/drweb86/HDE.Platform.git

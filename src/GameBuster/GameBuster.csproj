@@ -140,7 +140,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HDE.Platform\HDE.Platform.csproj">
+    <ProjectReference Include="..\third-party\HDE.Platform\src\HDE.Platform\HDE.Platform.csproj">
       <Project>{95e06c5c-a612-4e1a-bf91-693e573df5c1}</Project>
       <Name>HDE.Platform</Name>
     </ProjectReference>

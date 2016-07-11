@@ -12,7 +12,8 @@ namespace GameBuster.Services
         private readonly List<string> _knownNonGames = new List<string>
         {
             "ApplicationFrameHost", "Calculator", "ConEmu64", "devenv", "ScriptedSandbox64", "ShellExperienceHost",
-            "PROCEXP64", "Far", "firefox", "KeePass", "mmc", "SnagitEditor", "explorer"
+            "PROCEXP64", "Far", "firefox", "KeePass", "mmc", "SnagitEditor", "explorer", "AIMP", "Avira.Systray", "mstsc", "OUTLOOK",
+            "SourceTree", "SystemSettings"
         };
 
         public ProcessHelperService(ILog log)

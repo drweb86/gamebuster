@@ -12,7 +12,8 @@
         Width="660"
         MinWidth="660"
         WindowStartupLocation="CenterScreen"
-        Icon="Icons/Settings.ico">
+        Icon="Icons/Settings.ico"
+        Closing="OnWindowClosing">
     <Window.DataContext>
         <viewModel:SettingsWindowViewModel />
     </Window.DataContext>
@@ -136,6 +137,42 @@
                             Command="{Binding RemoveSelectedGamesCommand}">Remove Selected Items</Button>
                 </Grid>
             </Grid>
+
+            <Label Style="{StaticResource Label.Heading1.Style}">Kill Games Interval</Label>
+            <Label Style="{StaticResource Label.Paragraph.Style}">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    Here you can define interval in which any detected game processes will be terminated.
+                </AccessText>
+            </Label>
+
+            <Label Style="{StaticResource Label.Paragraph.Style}">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    Start interval:
+                </AccessText>
+            </Label>
+
+            <xctk:IntegerUpDown 
+                x:Name="_beginKillGameInterval"
+                Style="{StaticResource IntegerUpDown.Normal.Style}"
+                Margin="0 0 20 0"
+                Value="{Binding BeginKillGameIntervalHour}" 
+                Minimum="{Binding MinKillGameIntervalHour}"
+                FormatString="0 hour"/>
+
+            <Label Style="{StaticResource Label.Paragraph.Style}">
+                <AccessText TextWrapping="WrapWithOverflow">
+                    End interval:
+                </AccessText>
+            </Label>
+            
+            <xctk:IntegerUpDown 
+                Style="{StaticResource IntegerUpDown.Normal.Style}"
+                Margin="0 0 20 0"
+                Value="{Binding EndKillGameIntervalHour}" 
+                Minimum="{Binding ElementName=_beginKillGameInterval, Path=Value}"
+                Maximum="{Binding MaxKillGameIntervalHour}"
+                FormatString="0 hour"/>
+            
 
             <StackPanel Margin="0 15 0 0" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button

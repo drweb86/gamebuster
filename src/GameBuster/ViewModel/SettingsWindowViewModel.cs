@@ -11,6 +11,7 @@ using GameBuster.Controller;
 using GameBuster.Model;
 using GameBuster.Services;
 using HDE.Platform.Wpf;
+using HDE.Platform.Wpf.Commands;
 using Microsoft.Win32;
 
 namespace GameBuster.ViewModel
@@ -25,7 +26,12 @@ namespace GameBuster.ViewModel
             PlayingTimeDurationHours = _controller.Model.Settings.PlayingTimeDurationHours;
             RefreshProcesses();
             SetKnownGames(_controller.Model.Settings.KnownGames); //TODO:
+            BeginKillGameIntervalHour = _controller.Model.Settings.BeginKillGameIntervalHour;
+            EndKillGameIntervalHour = _controller.Model.Settings.EndKillGameIntervalHour;
         }
+
+        public int MinKillGameIntervalHour => GameBusterSettings.MinKillGameIntervalHour;
+        public int MaxKillGameIntervalHour => GameBusterSettings.MaxKillGameIntervalHour;
 
         private void RefreshProcesses()
         {
@@ -129,6 +135,38 @@ namespace GameBuster.ViewModel
             }
         }
 
+
+
+
+        public static readonly DependencyProperty BeginKillGameIntervalHourProperty = DependencyProperty.Register(
+            "BeginKillGameIntervalHour", typeof (int), typeof (SettingsWindowViewModel), new PropertyMetadata(default(int)));
+
+        public int BeginKillGameIntervalHour
+        {
+            get { return (int) GetValue(BeginKillGameIntervalHourProperty); }
+            set
+            {
+                SetValue(BeginKillGameIntervalHourProperty, value);
+                OnPropertyChanged();
+            }
+        }
+
+
+        public static readonly DependencyProperty EndKillGameIntervalHourProperty = DependencyProperty.Register(
+            "EndKillGameIntervalHour", typeof (int), typeof (SettingsWindowViewModel), new PropertyMetadata(default(int)));
+
+        public int EndKillGameIntervalHour
+        {
+            get { return (int) GetValue(EndKillGameIntervalHourProperty); }
+            set
+            {
+                SetValue(EndKillGameIntervalHourProperty, value);
+                OnPropertyChanged();
+            }
+        }
+
+
+
         public static readonly DependencyProperty PlayingTimeDurationHoursProperty = DependencyProperty.Register(
             "PlayingTimeDurationHours", typeof (int), typeof (SettingsWindowViewModel), new PropertyMetadata(default(int)));
 
@@ -196,10 +234,14 @@ namespace GameBuster.ViewModel
                 .Select(item => item.Title)
                 .ToList();
 
-            _controller.AcceptSettings(new GameBusterSettings(AlarmSoundFile, PlayingTimeDurationHours, knownGames));
+            _controller.AcceptSettings(new GameBusterSettings(
+                AlarmSoundFile, 
+                PlayingTimeDurationHours, 
+                knownGames,
+                BeginKillGameIntervalHour,
+                EndKillGameIntervalHour));
 
-            Application.Current.MainWindow.Close();
-            Application.Current.MainWindow = null;
+            Application.Current.MainWindow.Hide();
         }
 
         public ICommand DeclineSettingsCommand { get; } = new ViewModelActionCommand<SettingsWindowViewModel>(
@@ -207,8 +249,7 @@ namespace GameBuster.ViewModel
 
         private void DeclineSettings()
         {
-            Application.Current.MainWindow.Close();
-            Application.Current.MainWindow = null;
+            Application.Current.MainWindow.Hide();
         }
 
         #endregion

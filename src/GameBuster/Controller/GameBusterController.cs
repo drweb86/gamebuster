@@ -83,6 +83,12 @@ namespace GameBuster.Controller
         {
             Model.Settings = new SettingsService<GameBusterSettings>(Log)
                 .Load();
+
+            // Support for old versions
+            if (GameBusterSettings.IsIntervalHourValid(Model.Settings.BeginKillGameIntervalHour))
+                Model.Settings.BeginKillGameIntervalHour = GameBusterSettings.DefaultKillGameIntervalBeginHour;
+            if (GameBusterSettings.IsIntervalHourValid(Model.Settings.EndKillGameIntervalHour))
+                Model.Settings.EndKillGameIntervalHour = GameBusterSettings.DefaultKillGameIntervalEndHour;
         }
 
         public void AcceptSettings(GameBusterSettings gameBusterSettings)

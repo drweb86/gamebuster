@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using GameBuster.Controller;
+using GameBuster.View;
 using GameBuster.View.NotifyIcon;
 using Hardcodet.Wpf.TaskbarNotification;
 
@@ -30,6 +31,7 @@ namespace GameBuster
 
             AppDomain.CurrentDomain.UnhandledException += (sender, exc)
                 => FatalExceptionObject(exc.ExceptionObject);
+            Application.Current.MainWindow = new SettingsWindow();
         }
 
         private void OnPreviewTrayToolTipOpen(object sender, RoutedEventArgs e)
