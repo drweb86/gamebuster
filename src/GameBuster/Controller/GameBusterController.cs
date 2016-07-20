@@ -35,10 +35,7 @@ namespace GameBuster.Controller
             _gameWatcherService = new GameWatcherService(Log);
 
             StartService();
-#if !DEBUG
-            StartOnUserLogin();
 
-#endif
             if (!_singleInstance.FirstInstance)
             {
                 Log.Warning("Copy of already running application was launched. Exiting.");
@@ -85,10 +82,12 @@ namespace GameBuster.Controller
                 .Load();
 
             // Support for old versions
-            if (GameBusterSettings.IsIntervalHourValid(Model.Settings.BeginKillGameIntervalHour))
+            if (!GameBusterSettings.IsIntervalHourValid(Model.Settings.BeginKillGameIntervalHour))
                 Model.Settings.BeginKillGameIntervalHour = GameBusterSettings.DefaultKillGameIntervalBeginHour;
-            if (GameBusterSettings.IsIntervalHourValid(Model.Settings.EndKillGameIntervalHour))
+            if (!GameBusterSettings.IsIntervalHourValid(Model.Settings.EndKillGameIntervalHour))
                 Model.Settings.EndKillGameIntervalHour = GameBusterSettings.DefaultKillGameIntervalEndHour;
+            if (Model.Settings.BeginKillGameIntervalHour > Model.Settings.EndKillGameIntervalHour)
+                Model.Settings.EndKillGameIntervalHour = Model.Settings.BeginKillGameIntervalHour;
         }
 
         public void AcceptSettings(GameBusterSettings gameBusterSettings)
@@ -101,12 +100,6 @@ namespace GameBuster.Controller
 
         public TimeSpan PlayingTimeRemained => _gameWatcherService.PlayingTimeRemained;
         public bool IsSleepingTime => _gameWatcherService.IsSleepingTime;
-
-        public void StartOnUserLogin()
-        {
-            new StartupService(Log)
-                .StartOnUserLogin();
-        }
 
         public void AddMoreTime(TimeSpan timeSpan)
         {

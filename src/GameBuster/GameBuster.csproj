@@ -110,7 +110,6 @@
     <Compile Include="Services\ProcessHelperService.cs" />
     <Compile Include="Services\SoundService.cs" />
     <Compile Include="Services\GameWatcherService.cs" />
-    <Compile Include="Services\StartupService.cs" />
     <Compile Include="ViewModel\ProcessInfo.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="View\NotifyIcon\NotifyIconViewModel.cs" />
@@ -155,9 +154,9 @@
     <Folder Include="Commands\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="License.txt">
+    <None Include="License.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="View\Icons\Settings.ico" />
